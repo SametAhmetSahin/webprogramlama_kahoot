@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Quizzes{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">View Quizzes</h1>
+
+<a href="/quiz/create" class="bg-blue-500 text-white p-4 rounded">Create Quiz</a>
+
+<a href="/" class="bg-blue-500 text-white p-4 rounded">Homepage</a>
+<br>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    
+    {% for quiz in quizzes %}
+    <div class="bg-white p-6 rounded shadow-md">
+        <h2 class="text-xl font-bold mb-2">{{ quiz['name'] }}</h2>
+        <p class="mb-4">Owner: {{ quiz['owner'] }}</p>
+
+        <p class="mb-4">Questions: {{ quiz['questions']|length }}</p>
+        
+        <button class="bg-blue-500 text-white p-2 rounded" onclick="viewquiz(`{{ quiz['quiz_id'] }}`)">View Quiz</button>
+        <button class="bg-blue-500 text-white p-2 rounded" onclick="startquiz(`{{ quiz['quiz_id'] }}`)">Start Quiz</button>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+    function startquiz(id) {
+        var req = post_request("/api/v1/quiz/start", {id: id})
+        alert("Play Number: " + req["play_number"])
+    }
+    
+    function viewquiz(id) {
+        console.log("/viewquiz?quiz_id=" + id)
+        window.location.replace("/viewquiz?quiz_id=" + id)
+        
+    }
+</script>
+{% endblock %}

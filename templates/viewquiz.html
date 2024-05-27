@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Quizzes{% endblock %}
+
+{% block content %}
+<head>
+    <script src="https://cdn.plot.ly/plotly-2.32.0.min.js" charset="utf-8"></script>
+</head>
+<a href="/quizzes" class="bg-blue-500 text-white p-2 rounded">Quizzes</a>
+
+<h1 class="text-2xl font-bold mb-4">View Quiz Results for {{ quiz["name"] }}</h1>
+<div class="bg-blue-500 text-white rounded" id="plot"></div>
+<p id="quiz_id" hidden>{{ quiz["quiz_id"] }}</p>
+<br>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="questions">
+    {% for question in quiz["questions"] %}
+    <div class="bg-white p-6 rounded shadow-md">
+        <h2 class="text-xl font-bold mb-2">{{ question["text"] }}</h2>
+        {% for answer in question["answers"] %}
+        <div class="bg-white p-6 rounded shadow-md">
+        <p class="mb-4">{{ answer["text"] }}</p>
+        {% if answer["correct"] %} <input type="checkbox" checked ></input>
+        {% else %} <input type="checkbox" ></input>
+        
+        {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+
+    var quizdata = get_request("/api/v1/quiz/" + $("#quiz_id").text())["quiz"]
+    var correct = {
+        x: [],
+        y: [],
+        
+        name: 'Correct Answers',
+
+        type: 'bar'
+    }
+    var incorrect = {
+        x: [],
+        y: [],
+        
+        name: 'Incorrect Answers',
+
+        type: 'bar'
+    }
+
+    for (var i in quizdata["questions"]) {
+        correct["x"].push(i)
+        incorrect["x"].push(i)
+        correct["y"].push(quizdata["results"][i]["correct"])
+        
+        incorrect["y"].push(quizdata["results"][i]["incorrect"])
+    }
+
+    var data = [correct, incorrect]//, trace1, trace2];
+
+
+    var layout = {barmode: 'group'};
+
+
+    Plotly.newPlot('plot', data, layout);
+</script>
+{% endblock %}

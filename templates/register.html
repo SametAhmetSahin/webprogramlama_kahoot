@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">Register</h1>
+<div id="maindiv" class="bg-white p-6 rounded shadow-md">
+    <div class="mb-4">
+        <label for="username" class="block text-gray-700">Username</label>
+        <input type="text" name="username" id="username" class="border p-2 w-full" required>
+    </div>
+    <div class="mb-4">
+        <label for="password" class="block text-gray-700">Password</label>
+        <input type="password" name="password" id="password" class="border p-2 w-full" required>
+    </div>
+    <div class="mb-4">
+        <label for="role" class="block text-gray-700">Role</label>
+        <select name="role" id="role" class="border p-2 w-full" required>
+            <option value="teacher">Teacher</option>
+            <option value="admin">Admin</option>
+        </select>
+    </div>
+    <button onclick="register()" class="bg-blue-500 text-white p-2 rounded">Register</button>
+</div>
+<p class="mt-4">Go to <a href="/login" class="text-blue-500">Login</a></p>
+<script>
+    function register() {
+        var username = $("#username").val()
+        var password = $("#password").val()
+        var role = $("#role").val()
+
+        var data = {
+            username: username,
+            password: password,
+            role: role,
+        }
+        console.log("registering...")
+
+
+        var res = post_request("/api/v1/users/register", data)
+        if (res["success"]) {
+            $("#maindiv").html(`<div class="block text-gray-700"><p>Register successful.</p></div>`)
+        }
+        else {
+            alert("Registration failed. Error: " + res["message"])
+        }
+    }
+</script>
+{% endblock %}

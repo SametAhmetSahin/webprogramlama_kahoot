@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Play Quiz{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-4" id="quiz-name">Play Quiz</h1>
+<div class="mb-4" id="start-quiz-inputs">
+    <label for="quiz-number" class="block text-gray-700">Enter Quiz Number</label>
+    <input type="text" id="quiz-number" maxlength="6" class="border p-2 w-full" placeholder="123456" required>
+    <button id="start-quiz" class="bg-blue-500 text-white p-2 rounded" onclick="startquiz()">Start Quiz</button>
+</div>
+<div id="quiz-container" class="mt-6 hidden">
+    <p id="question-text" class="text-xl font-semibold mb-4"></p>
+    <div class="grid grid-cols-2 gap-4">
+        <button id="option-0" class="bg-gray-200 p-4 rounded" onclick="answer(0)"></button>
+        <button id="option-1" class="bg-gray-200 p-4 rounded" onclick="answer(1)"></button>
+        <button id="option-2" class="bg-gray-200 p-4 rounded" onclick="answer(2)"></button>
+        <button id="option-3" class="bg-gray-200 p-4 rounded" onclick="answer(3)"></button>
+    </div>
+</div>
+
+<script>
+var quizdata = {}
+var question_index = -1
+
+var answers = []
+
+function startquiz() {
+    var quiznumber = $("#quiz-number").val()
+    var quizreq = get_request(`/api/v1/quiz/with_number/${quiznumber}`)
+
+    if (quizreq["status"] == false) {
+        alert("Error while loading quiz")
+        window.location.replace("/login")
+    }
+    quizdata = quizreq["quiz"]
+
+    $("#start-quiz-inputs").addClass("hidden")
+
+    $("#quiz-container").removeClass("hidden")
+
+    console.log(quizdata)
+
+    $("#quiz-name").text(quizdata["name"])
+    
+    nextQuestion()
+}
+
+function answer(answer_number) {
+    q = quizdata["questions"][question_index]
+
+    console.log("answer number " + answer_number)
+    console.log(q)
+    
+    answers.push(q["answers"][answer_number]["correct"])
+
+    if (q["answers"][answer_number]["correct"]) {
+        alert("Correct answer! Onto the next question!")
+    }
+    else {
+        alert("Wrong answer :( You can do it!")
+    }
+    console.log(`${question_index} ${quizdata["questions"].length-1}`)
+    if (question_index == quizdata["questions"].length-1) {
+        post_request(`/api/v1/quiz/results/${quizdata["quiz_id"]}`, answers)
+        alert(`Quiz bitti, sonuçlarınız: ${answers}`)
+        window.location.replace("/")
+    }
+    else {
+        nextQuestion()
+    }
+}
+
+function nextQuestion() {
+    question_index += 1
+    console.log("next question")
+    console.log(quizdata["questions"][question_index])
+    q = quizdata["questions"][question_index]
+    
+    $("#question-text").text(q["text"])
+    
+    $("#option-0").text(q["answers"][0]["text"])
+    
+    $("#option-1").text(q["answers"][1]["text"])
+    
+    $("#option-2").text(q["answers"][2]["text"])
+    
+    $("#option-3").text(q["answers"][3]["text"])
+        
+}
+</script>
+
+{% endblock %}

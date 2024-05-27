@@ -21,16 +21,11 @@ app.add_middleware(
     allow_headers = ["*"],
 )
 
+from routers import quiz, users, webui
 
-kullanicilar = [
-    {"email": "sametahmetsahin1212@gmail.com", "password": "12345678"},
-    {"email": "nusretyildiz2003@gmail.com", "password": "12345678"}
-]
-
-from routers import users
-
-app.include_router(users.app)
-
+app.include_router(quiz.app, prefix="/api/v1")
+app.include_router(users.router, prefix="/api/v1")
+app.include_router(webui.app)
 @app.get("/")
 def index():
     return "index"
@@ -40,24 +35,6 @@ def time():
     now = datetime.now()
     return {"second": now.second, "minute": now.minute, "hour": now.hour, "fullstr": now.strftime("%d/%m/%Y %H:%M:%S")}
 
-@app.get("/dbtest/")
-def dbtest():
-    db = get_database()
-    users = db["users"]
-    print(users)
-    for i in users.find():
-        print(i)
-    return JSONEncoder().encode(i)
-    
-    pass
-
-"""
-def DanismanEsle():
-    puan = []
-    for i in range(len(id)):
-        puan.append(0)
-        for j in hedefler:
-            if j in profesion[i]
-                puan[i] = puan[i] + 11
-    kalan 
-    """
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8004)#, reload=True)

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+    <script>
+        $.support.cors = true
+        checkLogin()
+
+        function readCookies() {
+            let cookies = {}
+            for (let item of document.cookie.split(";")) {
+                let match = item.match(/^\s*([^]*?)="?([^]*?)"?\s*$/)
+                if (match)
+                    cookies[match[1]] = decodeURIComponent(match[2])
+            }
+            return cookies
+        }
+
+        function clearCookies() {
+            document.cookie += ";expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        }
+
+        function setCookies(cookies) {
+            clearCookies()
+            for (var c in cookies) {
+                document.cookie += ";"
+                console.log(";" + c + "=" + cookies[c])
+                document.cookie += c + "=" + cookies[c]
+            }
+            return document.cookie
+        }
+
+        function setCookie(key, value) {
+            cookies = readCookies()
+
+            console.log("key is " + cookies[key] + " val is " + value)
+            cookies[key] = value
+            console.log("final cookies " + JSON.stringify(cookies))
+            return setCookies(cookies)
+        }
+
+        function checkLogin() {
+            if (!["/login", "/register"].includes(window.location.pathname)) {
+
+                var jwt = readCookies()["token"]
+                console.log("jwt " + jwt)
+                if ((jwt == null) || (typeof (jwt) == "undefined") || (jwt == "")) {
+                    console.log("going to login")
+                    window.location.replace(`/login`)    
+                }
+            }
+        }
+
+        function logout() {
+            setCookie("token", null)
+            clearCookies()
+            window.location.replace(`/login`)
+        }
+
+        function get_request(url) {
+            var res = undefined
+            $.get({ url: `${url}`, async: false, xhrFields: { withCredentials: true } }, (data, status) => { res = data })
+            return res
+        }
+
+        function post_request(url, data) {
+            var res = undefined
+            console.log(data)
+            console.log(JSON.stringify(data))
+            $.post({
+                url: `${url}`, async: false, xhrFields: { withCredentials: true }, data: JSON.stringify(data), headers: {
+                    Authorization: localStorage.getItem("token")
+                }
+            }, (data, status) => { res = data })
+            return res
+        }
+
+        async function toggleElementClass(element_name, sleep_time, first_class, second_class) {
+            $(`#${element_name}`).removeClass(first_class);
+
+            $(`#${element_name}`).addClass(second_class);
+
+            await sleep(sleep_time * 1000);
+
+            $(`#${element_name}`).removeClass(second_class);
+            $(`#${element_name}`).addClass(first_class);
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+    </script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Kahoot Clone{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.2/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+</head>
+
+<body class="bg-gray-100">
+    <nav class="bg-blue-500 p-4">
+        <div class="container mx-auto">
+            <a href="/" class="text-white text-lg font-bold">Kahoot Clone</a>
+        </div>
+    </nav>
+    <div class="container mx-auto mt-5">
+        {% block content %}{% endblock %}
+    </div>
+    
+</body>
+
+</html>

@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}Add Quiz{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">Add Quiz</h1>
+
+<div id="quiz-form" class="bg-white p-6 rounded shadow-md">
+    
+    <label class="block text-gray-700 mb-2">Quiz Name</label>
+    <input type="text" id="quiz-name" class="border p-2 w-full mb-4" required>
+    <div id="questions-container">
+        <div class="question-item mb-6">
+            <h2 class="text-xl font-semibold mb-2">Question 1</h2>
+
+
+            <label class="block text-gray-700 mb-2">AI Prompt</label>
+            <input type="text" name="ai_prompt" class="border p-2 w-full mb-4" required>
+
+            <button onclick="generate_with_ai(0)" class="bg-blue-500 text-white p-2 rounded">Generate Question with AI</button>
+            
+            <label class="block text-gray-700 mb-2">Question Text</label>
+            <input type="text" name="question_text" class="border p-2 w-full mb-4" required>
+
+            <label class="block text-gray-700 mb-2">Answer A</label>
+            <input type="text" name="answer_a" class="border p-2 w-full mb-4" required>
+            
+            <label class="block text-gray-700 mb-2">Answer A Correct?</label>
+            <input type="checkbox" name="answer_a_correct" class="border p-2 w-full mb-4" >
+
+            <label class="block text-gray-700 mb-2">Answer B</label>
+            <input type="text" name="answer_b" class="border p-2 w-full mb-4" required>
+            
+            <label class="block text-gray-700 mb-2">Answer B Correct?</label>
+            <input type="checkbox" name="answer_b_correct" class="border p-2 w-full mb-4" >
+
+            <label class="block text-gray-700 mb-2">Answer C</label>
+            <input type="text" name="answer_c" class="border p-2 w-full mb-4" required>
+            
+            <label class="block text-gray-700 mb-2">Answer C Correct?</label>
+            <input type="checkbox" name="answer_c_correct" class="border p-2 w-full mb-4" >
+
+            <label class="block text-gray-700 mb-2">Answer D</label>
+            <input type="text" name="answer_d" class="border p-2 w-full mb-4" required>
+            
+            <label class="block text-gray-700 mb-2">Answer D Correct?</label>
+            <input type="checkbox" name="answer_d_correct" class="border p-2 w-full mb-4" >
+        </div>
+    </div>
+    <button type="button" id="add-question" onclick="add_question()" class="bg-green-500 text-white p-2 rounded mb-4">Add Another Question</button>
+    <button onclick="submit_quiz()" class="bg-blue-500 text-white p-2 rounded">Submit Quiz</button>
+</div>
+
+<script>
+
+function generate_with_ai(question_index) {
+    
+    var questionItems = $('.question-item');
+    console.log(questionItems)
+    var prompt = questionItems.get(question_index).querySelector('input[name="ai_prompt"]').value;
+    
+    generated_question = post_request("/api/v1/quiz/generate_question", {prompt: prompt})["question"]
+
+    console.log(generated_question)
+    
+    questionItems.get(question_index).querySelector('input[name="question_text"]').value = generated_question["text"];
+    questionItems.get(question_index).querySelector('input[name="answer_a"]').value = generated_question["answers"][0]["text"];
+    questionItems.get(question_index).querySelector('input[name="answer_b"]').value = generated_question["answers"][1]["text"]
+    questionItems.get(question_index).querySelector('input[name="answer_c"]').value = generated_question["answers"][2]["text"]
+    questionItems.get(question_index).querySelector('input[name="answer_d"]').value = generated_question["answers"][3]["text"]
+
+
+    questionItems.get(question_index).querySelector('input[name="answer_a_correct"]').checked = generated_question["answers"][0]["correct"];
+    questionItems.get(question_index).querySelector('input[name="answer_b_correct"]').checked = generated_question["answers"][1]["correct"];
+    questionItems.get(question_index).querySelector('input[name="answer_c_correct"]').checked = generated_question["answers"][2]["correct"];
+    questionItems.get(question_index).querySelector('input[name="answer_d_correct"]').checked = generated_question["answers"][3]["correct"];
+    
+    }
+
+function add_question() {
+    const questionsContainer = document.getElementById('questions-container');
+    const questionCount = questionsContainer.getElementsByClassName('question-item').length + 1;
+    const questionItem = document.createElement('div');
+    questionItem.classList.add('question-item', 'mb-6');
+
+    questionItem.innerHTML = `
+        <h2 class="text-xl font-semibold mb-2">Question ${questionCount}</h2>
+        <label class="block text-gray-700 mb-2">AI Prompt</label>
+        <input type="text" name="ai_prompt" class="border p-2 w-full mb-4" required>
+
+        <button onclick="generate_with_ai(${questionCount-1})" class="bg-blue-500 text-white p-2 rounded">Generate Question with AI</button>
+            
+
+        <label class="block text-gray-700 mb-2">Question Text</label>
+            <input type="text" name="question_text" class="border p-2 w-full mb-4" required>
+
+            <label class="block text-gray-700 mb-2">Answer A</label>
+            <input type="text" name="answer_a" class="border p-2 w-full mb-4" required>
+            
+            <label class="block text-gray-700 mb-2">Answer A Correct?</label>
+            <input type="checkbox" name="answer_a_correct" class="border p-2 w-full mb-4" >
+
+            <label class="block text-gray-700 mb-2">Answer B</label>
+            <input type="text" name="answer_b" class="border p-2 w-full mb-4" required>
+            
+            <label class="block text-gray-700 mb-2">Answer B Correct?</label>
+            <input type="checkbox" name="answer_b_correct" class="border p-2 w-full mb-4" >
+
+            <label class="block text-gray-700 mb-2">Answer C</label>
+            <input type="text" name="answer_c" class="border p-2 w-full mb-4" required>
+            
+            <label class="block text-gray-700 mb-2">Answer C Correct?</label>
+            <input type="checkbox" name="answer_c_correct" class="border p-2 w-full mb-4" >
+
+            <label class="block text-gray-700 mb-2">Answer D</label>
+            <input type="text" name="answer_d" class="border p-2 w-full mb-4" required>
+            
+            <label class="block text-gray-700 mb-2">Answer D Correct?</label>
+            <input type="checkbox" name="answer_d_correct" class="border p-2 w-full mb-4" >
+    `;
+
+    questionsContainer.appendChild(questionItem);
+}
+
+function submit_quiz() {
+    console.log("Quiz name " + $("#quiz-name").val())
+    
+    const questions = [];
+    const questionItems = $('.question-item');
+
+    for (const item of questionItems) {
+        const questionText = item.querySelector('input[name="question_text"]').value;
+        const answerA = item.querySelector('input[name="answer_a"]').value;
+        const answerACorrect = item.querySelector('input[name="answer_a_correct"]').checked;
+        const answerB = item.querySelector('input[name="answer_b"]').value;
+        const answerBCorrect = item.querySelector('input[name="answer_b_correct"]').checked;
+        const answerC = item.querySelector('input[name="answer_c"]').value;
+        const answerCCorrect = item.querySelector('input[name="answer_c_correct"]').checked;
+        const answerD = item.querySelector('input[name="answer_d"]').value;
+        const answerDCorrect = item.querySelector('input[name="answer_d_correct"]').checked;
+
+        if (!(answerACorrect || answerBCorrect || answerCCorrect || answerDCorrect)) {
+            alert("Correct answer not chosen")
+            return
+        }
+        questions.push({
+            text: questionText,
+            answers: [
+                {text: answerA, correct: answerACorrect},
+                {text: answerB, correct: answerBCorrect},
+                {text: answerC, correct: answerCCorrect},
+                {text: answerD, correct: answerDCorrect},
+            ]
+        });
+    }
+    var res = post_request("/api/v1/quiz", {text: $("#quiz-name").val(), questions: questions})
+
+    window.location.replace("/quizzes")
+    /*
+    const response = await fetch('/api/v1/quizzes', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ questions: questions })
+    });
+
+    const result = await response.json();
+    if (result.status === 'true') {
+        alert('Quiz submitted successfully');
+        form.reset();
+        document.getElementById('questions-container').innerHTML = ''; // Clear existing questions
+    } else {
+        alert('Failed to submit quiz');
+    }*/
+}
+</script>
+{% endblock %}

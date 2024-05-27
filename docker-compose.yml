@@ -1,0 +1,29 @@
+version: '3.3'
+services:
+    mongo:
+        #ports:
+        #    - '27017:27017'
+        #container_name: mongodb
+        restart: unless-stopped
+        logging:
+            options:
+                max-size: 1g
+        #environment:
+        #    - MONGO_INITDB_ROOT_USERNAME=mongo
+        #    - MONGO_INITDB_ROOT_PASSWORD=12345678
+        image: mongo
+    kahoot:
+        build: .
+        volumes:
+        - .:/app
+        ports:
+        - "8004:8004"
+    # mongo-express:
+    #     ports:
+    #       - "8081:8081"
+    #     container_name: mongo-express
+    #     restart: always
+    #     image: mongo-express
+    #     environment:
+    #       - ME_CONFIG_MONGODB_URL=mongodb://mongo:12345678@mongo/
+    #       - ME_CONFIG_MONGODB_ENABLE_ADMIN=true

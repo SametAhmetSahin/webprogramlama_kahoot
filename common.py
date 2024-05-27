@@ -6,17 +6,21 @@ from bson import ObjectId
 
 import json
 
-from bunnet import Document, Indexed, init_bunnet
+#from bunnet import Document, Indexed, init_bunnet
+
+import models as models
 
 def get_bare_database():
-    CONNSTRING = "mongodb://192.168.4.107@localhost/"
+    CONNSTRING = "mongodb://mongo:27017/"
     client = MongoClient(CONNSTRING)
     return client
 
+#client = get_bare_database()
+#init_bunnet(database=client.webprogramlama_kahoot, document_models=[models.Quiz, models.User])
+
 def get_database():
     client = get_bare_database()
-    init_bunnet(database=client.webprogramlama_kahoot, document_models=[Product])
-    pass
+    return client["kahootklonu"]
 
 class JSONEncoder(json.JSONEncoder):
     def default(self, o):
