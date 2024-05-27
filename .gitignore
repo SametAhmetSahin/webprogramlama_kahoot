@@ -166,3 +166,5 @@ img/
 
 emailsender.py
 mongodb/
+openai_token.txt
+gemini_key.txt
